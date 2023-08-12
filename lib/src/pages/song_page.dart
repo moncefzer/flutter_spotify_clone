@@ -2,6 +2,7 @@ import 'dart:math' show pi, min;
 import 'package:just_audio/just_audio.dart';
 import 'package:spotify_clone/src/data/models/song.dart';
 import '../core/utils/common_libs.dart';
+import '../core/utils/util_func.dart';
 import '../widgets/music_player.dart';
 import '../widgets/seek_bar.dart';
 import 'package:rxdart/rxdart.dart';
@@ -24,17 +25,14 @@ class _SongPageState extends State<SongPage> {
     super.initState();
     audioPlayer = AudioPlayer();
     try {
-      // audioPlayer.setAudioSource(AudioSource.uri(Uri.parse(sonUrl)));
-      // audioPlayer.setAsset('assets/songs/marinate__zorro.mp3');
       audioPlayer.setAudioSource(
         ConcatenatingAudioSource(
           children: [
-            // AudioSource.uri(Uri.parse(sonUrl)),
             AudioSource.asset(widget.song.songPath),
+            AudioSource.uri(Uri.parse(sonUrl)),
           ],
         ),
         initialPosition: Duration.zero,
-        preload: true,
       );
     } catch (err) {
       print(err);
@@ -53,7 +51,10 @@ class _SongPageState extends State<SongPage> {
         audioPlayer.positionStream,
         audioPlayer.durationStream,
         (Duration position, Duration? duration) {
-          return SeekBarData(position, duration ?? Duration.zero);
+          //! the package [just_audio] at the end emit a position > duration
+          final correctedDuration = duration ?? Duration.zero;
+          final correctedPosition = minDuration(position, correctedDuration);
+          return SeekBarData(correctedPosition, correctedDuration);
         },
       );
 

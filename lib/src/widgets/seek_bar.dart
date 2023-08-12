@@ -1,16 +1,22 @@
 import 'dart:math';
-
 import '../core/utils/common_libs.dart';
 
 class SeekBarData {
   final Duration position;
   final Duration duration;
 
-  SeekBarData(this.position, this.duration);
+  SeekBarData(this.position, this.duration)
+      : assert(
+          position.compareTo(duration) <= 0,
+          'positon exceed the duration',
+        );
   SeekBarData.zero([
     this.position = Duration.zero,
     this.duration = Duration.zero,
-  ]);
+  ]) : assert(
+          position.compareTo(duration) <= 0,
+          'positon exceed the duration',
+        );
 }
 
 class SeekBar extends StatefulWidget {
@@ -32,8 +38,6 @@ class SeekBar extends StatefulWidget {
 }
 
 class _SeekBarState extends State<SeekBar> {
-  double? dragValue;
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -58,20 +62,9 @@ class _SeekBarState extends State<SeekBar> {
           child: Slider(
             min: 0.0,
             max: widget.duration.inMilliseconds.toDouble(),
-            value: _getValue(),
-            onChanged: (value) {
-              setState(() {
-                dragValue = value;
-              });
-              if (widget.onChanged != null) {
-                widget.onChanged!(Duration(milliseconds: _getValue().round()));
-              }
-            },
-            onChangeEnd: (value) {
-              if (widget.onChangedEnd != null) {
-                widget.onChangedEnd!(Duration(milliseconds: value.round()));
-              }
-            },
+            value: widget.position.inMilliseconds.toDouble(),
+            onChanged: handleDrag,
+            onChangeEnd: handleDragEnd,
           ),
         ),
         Row(
@@ -93,10 +86,22 @@ class _SeekBarState extends State<SeekBar> {
     return '$minutes:$seconds';
   }
 
-  double _getValue() {
+  void handleDrag(double dragValue) {
+    if (widget.onChanged != null) {
+      widget.onChanged!(Duration(milliseconds: getNewPosition(dragValue)));
+    }
+  }
+
+  void handleDragEnd(double dragValue) {
+    if (widget.onChangedEnd != null) {
+      widget.onChangedEnd!(Duration(milliseconds: dragValue.round()));
+    }
+  }
+
+  int getNewPosition(double dragValue) {
     return min(
-      dragValue ?? widget.position.inMilliseconds.toDouble(),
-      widget.duration.inMilliseconds.toDouble(),
+      dragValue.floor(),
+      widget.duration.inMilliseconds,
     );
   }
 }
