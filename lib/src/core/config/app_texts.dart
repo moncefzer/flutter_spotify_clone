@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppText {
-  static TextTheme get _interTextTheme => GoogleFonts.interTextTheme();
+  static TextTheme get _interTextTheme => GoogleFonts.poppinsTextTheme();
 
   static final _blackheadlineSmall = _interTextTheme.headlineSmall?.copyWith(
     fontSize: 24.sp,
@@ -57,5 +57,18 @@ class AppText {
         labelLarge: _blacklabelLarge,
         labelMedium: _blacklabelMedium,
         labelSmall: _blacklabelSmall,
+      );
+
+  static get darkThemeText => TextTheme(
+        headlineSmall: _blackheadlineSmall?.copyWith(color: Colors.white),
+        titleLarge: _blacktitleLarge?.copyWith(color: Colors.white),
+        titleMedium: _blacktitleMedium?.copyWith(color: Colors.white),
+        titleSmall: _blacktitleSmall?.copyWith(color: Colors.white),
+        bodyLarge: _blackbodyLarge?.copyWith(color: Colors.white),
+        bodyMedium: _blackbodyMedium?.copyWith(color: Colors.white),
+        bodySmall: _blackbodySmall?.copyWith(color: Colors.white),
+        labelLarge: _blacklabelLarge?.copyWith(color: Colors.white),
+        labelMedium: _blacklabelMedium?.copyWith(color: Colors.white),
+        labelSmall: _blacklabelSmall?.copyWith(color: Colors.white),
       );
 }
