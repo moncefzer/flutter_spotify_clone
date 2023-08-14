@@ -1,11 +1,8 @@
 import 'dart:math' show pi, min;
-import 'package:just_audio/just_audio.dart';
 import 'package:spotify_clone/src/data/models/song.dart';
+import '../controllers/music_payer_bloc/music_player_bloc.dart';
 import '../core/utils/common_libs.dart';
-import '../core/utils/util_func.dart';
 import '../widgets/music_player.dart';
-import '../widgets/seek_bar.dart';
-import 'package:rxdart/rxdart.dart';
 
 class SongPage extends StatefulWidget {
   const SongPage({super.key, required this.song});
@@ -17,51 +14,18 @@ class SongPage extends StatefulWidget {
 }
 
 class _SongPageState extends State<SongPage> {
-  late final AudioPlayer audioPlayer;
-  final sonUrl =
-      'https://s3.amazonaws.com/scifri-episodes/scifri20181123-episode.mp3';
   @override
   void initState() {
     super.initState();
-    audioPlayer = AudioPlayer();
-    try {
-      audioPlayer.setAudioSource(
-        ConcatenatingAudioSource(
-          children: [
-            AudioSource.asset(widget.song.songPath),
-            AudioSource.uri(Uri.parse(sonUrl)),
-          ],
-        ),
-        initialPosition: Duration.zero,
-      );
-    } catch (err) {
-      print(err);
-    }
-  }
 
-  @override
-  void dispose() {
-    audioPlayer.pause();
-    audioPlayer.dispose();
-    super.dispose();
+    Future.microtask(
+      () => MusicPlayerBloc.get(context)
+          .add(MusicPlayerSetCurrentSong(song: widget.song)),
+    );
   }
-
-  Stream<SeekBarData> get _seekBarData =>
-      Rx.combineLatest2<Duration, Duration?, SeekBarData>(
-        audioPlayer.positionStream,
-        audioPlayer.durationStream,
-        (Duration position, Duration? duration) {
-          //! the package [just_audio] at the end emit a position > duration
-          final correctedDuration = duration ?? Duration.zero;
-          final correctedPosition = minDuration(position, correctedDuration);
-          return SeekBarData(correctedPosition, correctedDuration);
-        },
-      );
 
   @override
   Widget build(BuildContext context) {
-    final imageSize = min(1.sw, 0.4.sh);
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -92,42 +56,58 @@ class _SongPageState extends State<SongPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: 0.1.sh),
-            Image.network(
-              widget.song.coverUrl,
-              height: imageSize,
-              width: imageSize,
-              fit: BoxFit.cover,
-            ),
-            SizedBox(height: 0.05.sh),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(widget.song.title,
-                        style: context.titleMedium
-                            .copyWith(fontWeight: FontWeight.bold)),
-                    Text(
-                      widget.song.artist.name,
-                      style: context.titleSmall,
-                    ),
-                  ],
-                ),
-                Icon(
-                  Icons.favorite_border_outlined,
-                  size: 28.w,
-                )
-              ],
-            ),
-            MusicPlayer(
-              seekBarData: _seekBarData,
-              audioPlayer: audioPlayer,
-            )
+            SongMetaData(song: widget.song),
+            const MusicPlayer(),
           ],
         ),
       ),
+    );
+  }
+}
+
+class SongMetaData extends StatelessWidget {
+  const SongMetaData({super.key, required this.song});
+
+  final Song song;
+
+  @override
+  Widget build(BuildContext context) {
+    final imageSize = min(1.sw, 0.4.sh);
+    return Column(
+      children: [
+        SizedBox(height: 0.1.sh),
+        Image.network(
+          song.coverUrl,
+          height: imageSize,
+          width: imageSize,
+          fit: BoxFit.cover,
+        ),
+        SizedBox(height: 0.05.sh),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  song.title,
+                  style: context.titleMedium.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  song.artist.name,
+                  style: context.titleSmall,
+                ),
+              ],
+            ),
+            Icon(
+              Icons.favorite_border_outlined,
+              size: 28.w,
+            )
+          ],
+        ),
+      ],
     );
   }
 }

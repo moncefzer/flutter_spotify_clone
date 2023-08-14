@@ -1,21 +1,52 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:spotify_clone/src/data/models/artist.dart';
-
-const _songAssets = 'assets/songs/';
 
 class Song {
   final String id;
   final Artist artist;
   final String title;
-  final String songPath;
+  final String? songPath;
+  final String? songUrl;
   final String coverUrl;
 
   const Song({
     required this.id,
     required this.artist,
     required this.title,
-    required this.songPath,
+    this.songPath,
+    this.songUrl,
     required this.coverUrl,
   });
+
+  factory Song.fromMediaItem(MediaItem mediaItem) {
+    String? songPath, songUrl;
+
+    if ((mediaItem.extras!['url'] as String).startsWith('asset:///')) {
+      songPath =
+          mediaItem.extras!['url'].toString().replaceFirst('asset:///', '');
+    } else {
+      songUrl = mediaItem.extras!['url'];
+    }
+
+    return Song(
+      id: mediaItem.id,
+      artist: const Artist(id: '1', name: 'mediaItem.artist'),
+      title: mediaItem.title,
+      coverUrl: mediaItem.artUri!.toString(),
+      songPath: songPath,
+      songUrl: songUrl,
+    );
+  }
+
+  MediaItem toMediaItem() => MediaItem(
+        id: id,
+        artist: artist.id,
+        title: title,
+        artUri: Uri.parse(coverUrl),
+        extras: <String, dynamic>{
+          'url': songPath != null ? 'asset:///$songPath' : songUrl,
+        },
+      );
 
   static const songs = [
     Song(

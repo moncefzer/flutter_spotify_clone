@@ -7,6 +7,8 @@ environment:
   sdk: ">=3.0.5 <4.0.0"
 
 dependencies:
+  audio_service: ^0.18.10
+  equatable: ^2.0.5
   flutter:
     sdk: flutter
   flutter_bloc: ^8.1.3

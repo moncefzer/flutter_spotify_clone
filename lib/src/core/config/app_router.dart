@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spotify_clone/src/data/models/playlist.dart';
 import 'package:spotify_clone/src/pages/layout_page.dart';
-import 'package:spotify_clone/src/pages/song_page.dart';
 
 import '../../data/models/song.dart';
 import '../../pages/playlist_page.dart';
+import '../../pages/song_page.dart';
 
 //? context.go()   will start a new navigation stack unless the destination is a sub-level route
 //? context.push() will push in the same navigation stack even it's not a sub-level route
