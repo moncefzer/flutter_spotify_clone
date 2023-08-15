@@ -17,11 +17,11 @@ class CustomAppBar extends StatelessWidget {
         const Spacer(),
         Row(
           children: [
-            Icon(Icons.notifications_none_rounded),
+            const Icon(Icons.notifications_none_rounded),
             SizedBox(width: 15.w),
-            Icon(Icons.history),
+            const Icon(Icons.history),
             SizedBox(width: 15.w),
-            Icon(Icons.settings),
+            const Icon(Icons.settings),
           ],
         )
       ],

@@ -14,7 +14,7 @@ class LayoutPage extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          Positioned.fill(
+          const Positioned.fill(
             child: IndexedStack(
               index: 0,
               children: [

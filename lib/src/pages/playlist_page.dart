@@ -48,22 +48,22 @@ class PlaylistPage extends StatelessWidget {
                           ],
                         ),
                         SizedBox(height: 5.h),
-                        Text('Album - 2000'),
+                        const Text('Album - 2000'),
                         SizedBox(height: 5.h),
                         Row(
                           children: [
-                            Icon(Icons.favorite_border),
+                            const Icon(Icons.favorite_border),
                             SizedBox(width: 10.w),
-                            Icon(Icons.download_for_offline_rounded,
+                            const Icon(Icons.download_for_offline_rounded,
                                 color: AppColors.primary),
                             SizedBox(width: 10.w),
-                            Icon(Icons.more_horiz),
+                            const Icon(Icons.more_horiz),
                           ],
                         )
                       ],
                     ),
-                    Spacer(),
-                    Icon(
+                    const Spacer(),
+                    const Icon(
                       Icons.play_circle_fill_outlined,
                       size: 60,
                       color: AppColors.primary,

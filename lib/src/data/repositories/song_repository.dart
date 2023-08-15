@@ -1,7 +1,5 @@
 import 'package:audio_service/audio_service.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:spotify_clone/src/core/services/audio_handler.dart';
 import 'package:spotify_clone/src/core/utils/audio_packages_adapter.dart';
 import 'package:spotify_clone/src/core/utils/util_func.dart';
 

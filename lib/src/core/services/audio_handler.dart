@@ -161,6 +161,7 @@ class MyAudioHandler extends BaseAudioHandler {
   }
 
   @override
+  // ignore: avoid_renaming_method_parameters
   Future<void> updateQueue(List<MediaItem> mediaItems) async {
     final audioSources =
         mediaItems.map((mediaItem) => _createAudioSource(mediaItem)).toList();
@@ -204,6 +205,7 @@ class MyAudioHandler extends BaseAudioHandler {
   ///
   /// Returns: A PlaybackState object that represents the current state of the audio
   /// playback in the audio_service format.
+  // ignore: unused_element
   PlaybackState _transformEvent(PlaybackEvent event) {
     return PlaybackState(
       controls: [

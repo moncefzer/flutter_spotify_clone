@@ -31,7 +31,7 @@ class SongItem extends StatelessWidget {
                 Text(song.title, style: context.bodyLarge),
                 Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.download_for_offline_rounded,
                       color: AppColors.primary,
                       size: 17,
@@ -43,8 +43,8 @@ class SongItem extends StatelessWidget {
                 ),
               ],
             ),
-            Spacer(),
-            Icon(Icons.more_horiz),
+            const Spacer(),
+            const Icon(Icons.more_horiz),
           ],
         ),
       ),

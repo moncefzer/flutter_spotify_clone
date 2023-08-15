@@ -25,7 +25,6 @@ class MusicPlayerCubit extends Cubit<MusicPlayerState> {
 
   FutureOr<void> _onStarted() async {
     subscription = _songRepository.musicPlayerDataStream.listen((data) async {
-      print(data.songQueue.length);
       if (state.status == MusicPlayerStatus.initial &&
           data.currentSong == null) {
         return emit(
