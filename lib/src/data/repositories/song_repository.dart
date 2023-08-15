@@ -1,5 +1,8 @@
 import 'package:audio_service/audio_service.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:spotify_clone/src/core/services/audio_handler.dart';
+import 'package:spotify_clone/src/core/utils/audio_packages_adapter.dart';
 import 'package:spotify_clone/src/core/utils/util_func.dart';
 
 import '../models/music_player_data.dart';
@@ -45,12 +48,16 @@ class SongRepository {
 
   Future<void> skipToPrevious() => _audioHandler.skipToPrevious();
 
-  Future<void> updateQueue() => _audioHandler.updateQueue([]);
+  Future<void> updateQueue(List<Song> songs) => _audioHandler.updateQueue(
+        songs.map((song) => song.toMediaItem()).toList(),
+      );
 
   Future<void> seek(Duration position) => _audioHandler.seek(position);
 
-  Future<void> setRepeatMode(AudioServiceRepeatMode mode) =>
-      _audioHandler.setRepeatMode(mode);
+  Future<void> changeRepeatMode(AudioServiceRepeatMode currentMode) {
+    final mode = AudioPackagesHelper.getNextRepeatMode(currentMode);
+    return _audioHandler.setRepeatMode(mode);
+  }
 
   /// A stream reporting the combined state of the current media item and its
   /// current position.

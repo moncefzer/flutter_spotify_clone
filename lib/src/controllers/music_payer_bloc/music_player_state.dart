@@ -1,4 +1,4 @@
-part of 'music_player_bloc.dart';
+part of 'music_player_cubit.dart';
 
 enum MusicPlayerStatus { initial, loaded, playing, paused }
 

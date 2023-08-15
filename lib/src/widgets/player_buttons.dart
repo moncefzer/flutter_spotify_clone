@@ -1,13 +1,10 @@
 import 'package:audio_service/audio_service.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:spotify_clone/src/core/extension/audio_ext.dart';
+import 'package:spotify_clone/src/core/extension/bool_ext.dart';
 
-import 'package:spotify_clone/src/data/repositories/song_repository.dart';
-
-import '../controllers/music_payer_bloc/music_player_bloc.dart';
+import '../controllers/music_payer_bloc/music_player_cubit.dart';
 import '../core/utils/common_libs.dart';
-import '../data/models/music_player_data.dart';
-import '../data/models/song.dart';
 
 class PlayerButtons extends StatefulWidget {
   const PlayerButtons({
@@ -24,13 +21,12 @@ class PlayerButtons extends StatefulWidget {
 class _PlayerButtonsState extends State<PlayerButtons> {
   final AudioPlayer audioPlayer = AudioPlayer();
 
-  late final MusicPlayerBloc bloc;
+  late final MusicPlayerCubit bloc;
 
   @override
   void initState() {
     super.initState();
-
-    Future.microtask(() => bloc = MusicPlayerBloc.get(context));
+    bloc = MusicPlayerCubit.get(context);
   }
 
   @override
@@ -73,35 +69,32 @@ class _PlayerButtonsState extends State<PlayerButtons> {
   }
 
   Widget _buildSeedPreviousButton() {
-    return StreamBuilder(
-      stream: audioPlayer.sequenceStateStream,
-      builder: (context, snapshot) {
-        return ControlButton(
-          icon: Icons.skip_previous_rounded,
-          isEnabled: audioPlayer.hasPrevious,
-          onTap: audioPlayer.seekToPrevious,
-          size: 45,
-        );
-      },
+    final hasPrevious = widget
+        .musicPlayerState.musicPlayerData?.currentSongHasPrevious.ifNullFalse;
+
+    return ControlButton(
+      icon: Icons.skip_previous_rounded,
+      isEnabled: hasPrevious,
+      onTap: bloc.skipToPrevious,
+      size: 45,
     );
   }
 
-  int count = 1;
   Widget _buildPausePlayButton() {
     //? default is ready
     var icon = Icons.play_circle_filled_rounded;
-    var onTap = () => bloc.add(MusicPlayerPlay());
+    var onTap = bloc.play;
 
     final playerState = widget.musicPlayerState.musicPlayerData?.playbackState;
 
     if (playerState?.playing ?? false) {
       icon = Icons.pause_circle_filled_outlined;
-      onTap = () => bloc.add(MusicPlayerPause());
+      onTap = bloc.pause;
     }
 
     if (playerState?.processingState == AudioProcessingState.completed) {
       icon = Icons.replay_outlined;
-      onTap = () => bloc.add(const MusicPlayerSeek(position: Duration.zero));
+      onTap = () => bloc.seek(Duration.zero);
     }
 
     return AnimatedSwitcher(
@@ -117,26 +110,20 @@ class _PlayerButtonsState extends State<PlayerButtons> {
   }
 
   Widget _buildSeedNextButton() {
-    // widget.musicPlayerState.musicPlayerData.playbackState.
+    final hasNext =
+        widget.musicPlayerState.musicPlayerData?.currentSongHasNext ?? false;
 
-    return StreamBuilder(
-      stream: audioPlayer.sequenceStateStream,
-      builder: (context, snapshot) {
-        return ControlButton(
-          icon: Icons.skip_next_rounded,
-          isEnabled: audioPlayer.hasNext,
-          onTap: audioPlayer.seekToNext,
-          size: 45,
-        );
-      },
+    return ControlButton(
+      icon: Icons.skip_next_rounded,
+      isEnabled: hasNext,
+      onTap: bloc.skipToNext,
+      size: 45,
     );
   }
 
   Widget _buildLoopModeButton() {
-    var mode = AudioServiceRepeatMode.all;
-
-    mode = widget.musicPlayerState.musicPlayerData?.playbackState.repeatMode ??
-        mode;
+    final mode = widget.musicPlayerState.musicPlayerData?.playbackState
+        .repeatMode.ifNullNoneMode;
 
     final color =
         mode == AudioServiceRepeatMode.none ? Colors.white : AppColors.primary;
@@ -147,15 +134,7 @@ class _PlayerButtonsState extends State<PlayerButtons> {
       icon: icon,
       color: color,
       isEnabled: true,
-      onTap: () {
-        if (mode == AudioServiceRepeatMode.all) {
-          audioPlayer.setLoopMode(LoopMode.one);
-        } else if (mode == AudioServiceRepeatMode.one) {
-          audioPlayer.setLoopMode(LoopMode.off);
-        } else {
-          audioPlayer.setLoopMode(LoopMode.all);
-        }
-      },
+      onTap: () => bloc.changeRepeatMode(mode),
     );
   }
 }

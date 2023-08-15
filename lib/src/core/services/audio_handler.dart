@@ -3,6 +3,8 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:spotify_clone/src/core/utils/audio_packages_adapter.dart';
 
 Future<AudioHandler> initAudioService() async {
   return await AudioService.init(
@@ -31,10 +33,50 @@ class MyAudioHandler extends BaseAudioHandler {
 
   MyAudioHandler() {
     _loadEmptyPlaylist();
-    _player.playbackEventStream.map(_transformEvent).pipe(playbackState);
+    _notifyAudioHandlerAboutPlaybackEvents();
     _listenForDurationChanges();
     _listenForCurrentSongIndexChanges();
     _listenForSequenceStateChanges();
+  }
+
+  void _notifyAudioHandlerAboutPlaybackEvents() {
+    /// Combine the streams of PlaybackEvent and LoopMode
+    //Todo : add RepeatMode  stream [_player.reatModeStream]
+    final eventWithLoopModeStream =
+        Rx.combineLatest2<PlaybackEvent, LoopMode, PlaybackState>(
+      _player.playbackEventStream,
+      _player.loopModeStream,
+      (event, loopMode) {
+        return PlaybackState(
+          controls: [
+            MediaControl.rewind,
+            if (_player.playing) MediaControl.pause else MediaControl.play,
+            MediaControl.stop,
+            MediaControl.fastForward,
+          ],
+          systemActions: const {
+            MediaAction.seek,
+            MediaAction.seekForward,
+            MediaAction.seekBackward,
+          },
+          //? indexces of controls will apprear in compact mode
+          androidCompactActionIndices: const [0, 1, 3],
+          processingState:
+              AudioPackagesHelper.justAudioToServiceProcessingState(
+            _player.processingState,
+          ),
+          playing: _player.playing,
+          updatePosition: _player.position,
+          bufferedPosition: _player.bufferedPosition,
+          speed: _player.speed,
+          queueIndex: event.currentIndex,
+          repeatMode: AudioPackagesHelper.justAudioToServiceLoopMode(loopMode),
+        );
+      },
+    );
+    eventWithLoopModeStream.pipe(playbackState);
+
+    // _player.playbackEventStream.map(_transformEvent).pipe(playbackState);
   }
 
   Future<void> _loadEmptyPlaylist() async {
@@ -68,18 +110,19 @@ class MyAudioHandler extends BaseAudioHandler {
   @override
   Future<void> seek(Duration position) => _player.seek(position);
 
+  // get LoopMode stream
+  Stream<LoopMode> get getRepeatModeStream => _player.loopModeStream;
+
   @override
   Future<void> setRepeatMode(AudioServiceRepeatMode repeatMode) async {
     assert(
-      repeatMode == AudioServiceRepeatMode.group,
+      repeatMode != AudioServiceRepeatMode.group,
       'mode unsupported in just_audio package',
     );
 
-    return _player.setLoopMode({
-      AudioServiceRepeatMode.all: LoopMode.all,
-      AudioServiceRepeatMode.none: LoopMode.off,
-      AudioServiceRepeatMode.one: LoopMode.one,
-    }[repeatMode]!);
+    return _player.setLoopMode(
+      AudioPackagesHelper.serviceToJustAudioLoopMode(repeatMode),
+    );
   }
 
   @override
@@ -115,6 +158,16 @@ class MyAudioHandler extends BaseAudioHandler {
 
     final newQueue = queue.value..add(mediaItem);
     queue.add(newQueue);
+  }
+
+  @override
+  Future<void> updateQueue(List<MediaItem> mediaItems) async {
+    final audioSources =
+        mediaItems.map((mediaItem) => _createAudioSource(mediaItem)).toList();
+    _songQueue.clear();
+    _songQueue.addAll(audioSources);
+
+    queue.add(mediaItems);
   }
 
   /// Removes a MediaItem from the playback queue at the specified index. If the
@@ -166,13 +219,9 @@ class MyAudioHandler extends BaseAudioHandler {
       },
       //? indexces of controls will apprear in compact mode
       androidCompactActionIndices: const [0, 1, 3],
-      processingState: const {
-        ProcessingState.idle: AudioProcessingState.idle,
-        ProcessingState.loading: AudioProcessingState.loading,
-        ProcessingState.buffering: AudioProcessingState.buffering,
-        ProcessingState.ready: AudioProcessingState.ready,
-        ProcessingState.completed: AudioProcessingState.completed,
-      }[_player.processingState]!,
+      processingState: AudioPackagesHelper.justAudioToServiceProcessingState(
+        _player.processingState,
+      ),
       playing: _player.playing,
       updatePosition: _player.position,
       bufferedPosition: _player.bufferedPosition,

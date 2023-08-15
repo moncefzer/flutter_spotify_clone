@@ -1,7 +1,8 @@
 import 'package:audio_service/audio_service.dart';
+import 'package:equatable/equatable.dart';
 import 'package:spotify_clone/src/data/models/artist.dart';
 
-class Song {
+class Song extends Equatable {
   final String id;
   final Artist artist;
   final String title;
@@ -98,4 +99,7 @@ class Song {
           'https://images.unsplash.com/photo-1595878715977-2e8f8df18ea8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1974&q=80',
     ),
   ];
+
+  @override
+  List<Object?> get props => [id, artist, title, songPath, songUrl, coverUrl];
 }

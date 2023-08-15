@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:spotify_clone/src/controllers/music_payer_bloc/music_player_bloc.dart';
+import 'package:spotify_clone/src/controllers/music_payer_bloc/music_player_cubit.dart';
 import 'package:spotify_clone/src/core/config/app_router.dart';
 import 'package:spotify_clone/src/core/config/app_themes.dart';
 import 'package:spotify_clone/src/data/repositories/song_repository.dart';
@@ -19,7 +19,7 @@ class SpotifyApp extends StatelessWidget {
       splitScreenMode: true,
       builder: (context, child) {
         return BlocProvider(
-          create: (context) => sl<MusicPlayerBloc>(),
+          create: (context) => sl<MusicPlayerCubit>(),
           child: RepositoryProvider(
             create: (context) => sl<SongRepository>(),
             child: MaterialApp.router(

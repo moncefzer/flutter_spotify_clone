@@ -1,3 +1,5 @@
+import 'package:spotify_clone/src/controllers/music_payer_bloc/music_player_cubit.dart';
+
 import '../core/utils/common_libs.dart';
 import '../data/models/playlist.dart';
 
@@ -59,6 +61,7 @@ class PlaylistItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        MusicPlayerCubit.get(context).updateQueue(playlist.songs);
         context.pushNamed(
           Routes.playlist.name,
           extra: playlist,

@@ -1,6 +1,6 @@
 import 'dart:math' show pi, min;
 import 'package:spotify_clone/src/data/models/song.dart';
-import '../controllers/music_payer_bloc/music_player_bloc.dart';
+import '../controllers/music_payer_bloc/music_player_cubit.dart';
 import '../core/utils/common_libs.dart';
 import '../widgets/music_player.dart';
 
@@ -19,8 +19,7 @@ class _SongPageState extends State<SongPage> {
     super.initState();
 
     Future.microtask(
-      () => MusicPlayerBloc.get(context)
-          .add(MusicPlayerSetCurrentSong(song: widget.song)),
+      () => MusicPlayerCubit.get(context).setCurrentSong(widget.song),
     );
   }
 

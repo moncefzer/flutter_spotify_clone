@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:spotify_clone/src/controllers/music_payer_bloc/music_player_bloc.dart';
+import 'package:spotify_clone/src/controllers/music_payer_bloc/music_player_cubit.dart';
 import 'package:spotify_clone/src/widgets/player_buttons.dart';
 
 import '../core/utils/common_libs.dart';
@@ -10,7 +10,7 @@ class MusicPlayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<MusicPlayerBloc, MusicPlayerState>(
+    return BlocBuilder<MusicPlayerCubit, MusicPlayerState>(
       builder: (context, state) {
         final musicPlayerData = state.musicPlayerData;
 
@@ -30,6 +30,6 @@ class MusicPlayer extends StatelessWidget {
   }
 
   void onSeekPosition(Duration value, BuildContext context) {
-    MusicPlayerBloc.get(context).add(MusicPlayerSeek(position: value));
+    MusicPlayerCubit.get(context).seek(value);
   }
 }
